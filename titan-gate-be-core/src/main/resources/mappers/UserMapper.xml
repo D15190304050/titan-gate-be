@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stark.coderaider.titan.gate.core.dao.UserMapper">
+    <!-- 假设命名空间为 stark.coderaider.titan.gate.dao.UserMapper -->
+    <resultMap id="BaseResultMap" type="stark.coderaider.titan.gate.core.domain.entities.mysql.User">
+        <id column="id" property="id"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="creation_time" property="creationTime"/>
+        <result column="modifier_id" property="modifierId"/>
+        <result column="modification_time" property="modificationTime"/>
+        <result column="username" property="username"/>
+        <result column="encrypted_password" property="encryptedPassword"/>
+        <result column="state" property="state"/>
+        <result column="email" property="email"/>
+        <result column="phone_number_country_code" property="phoneNumberCountryCode"/>
+        <result column="phone_number" property="phoneNumber"/>
+    </resultMap>
+
+    <select id="getUserByUsername" resultMap="BaseResultMap">
+        SELECT
+            `id`,
+            `creator_id`,
+            `creation_time`,
+            `modifier_id`,
+            `modification_time`,
+            `username`,
+            `encrypted_password`,
+            `state`,
+            `email`,
+            `phone_number_country_code`,
+            `phone_number`
+        FROM `user`
+        WHERE username = #{username}
+    </select>
+
+    <update id="updatePasswordByUsername">
+        UPDATE `user`
+        SET `encrypted_password` = #{encryptedPassword}
+        WHERE `username` = #{username}
+    </update>
+</mapper>
