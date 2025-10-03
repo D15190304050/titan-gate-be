@@ -23,14 +23,12 @@ oauth2:
         client-secret: your-github-client-secret
 
 # Dubbo配置
-#dubbo:
-#    application:
-#        name: titan-gate-be-core
-#    registry:
-#        address: nacos://localhost:8848
-#    protocol:
-#        name: dubbo
-#        port: 20880
+dubbo:
+    application:
+        name: titan-gate-be-core
+    protocol:
+        name: dubbo
+        port: 20880
 
 mybatis:
     mapper-locations:

@@ -11,6 +11,11 @@ spring:
             #            port: 6379
             port: 10079
 
+dubbo:
+    service:
+        profile:
+            url: tri://localhost:20881
+
 titan:
     gate:
         jwt-secret: q4~@x2uC$f@M2x*^e5&DB^L!3~)6@+

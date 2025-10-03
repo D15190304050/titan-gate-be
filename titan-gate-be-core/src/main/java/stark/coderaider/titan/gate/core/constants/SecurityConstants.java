@@ -27,7 +27,7 @@ public class SecurityConstants
     public static final String[] NON_AUTHENTICATE_URIS =
         {
             DEFAULT_LOGIN_URI,
-            "/connection/hello",
+            "/connection/**",
             "/auth/**",
             "/public/**",
         };
