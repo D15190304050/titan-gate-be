@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
 import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
 import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
-import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 
 import java.util.Calendar;
 

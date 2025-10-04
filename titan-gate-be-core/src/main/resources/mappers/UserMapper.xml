@@ -38,4 +38,23 @@
         SET `encrypted_password` = #{encryptedPassword}
         WHERE `username` = #{username}
     </update>
+
+    <insert id="insert">
+        INSERT INTO `user` (`creator_id`,
+                            `modifier_id`,
+                            `username`,
+                            `encrypted_password`,
+                            `state`,
+                            `email`,
+                            `phone_number_country_code`,
+                            `phone_number`)
+        VALUES (#{creatorId},
+                #{modifierId},
+                #{username},
+                #{encryptedPassword},
+                #{state},
+                #{email},
+                #{phoneNumberCountryCode},
+                #{phoneNumber})
+    </insert>
 </mapper>
