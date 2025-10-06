@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="stark.coderaider.titan.gate.core.dao.UserMapper">
-    <!-- 假设命名空间为 stark.coderaider.titan.gate.dao.UserMapper -->
     <resultMap id="BaseResultMap" type="stark.coderaider.titan.gate.core.domain.entities.mysql.User">
         <id column="id" property="id"/>
         <result column="creator_id" property="creatorId"/>
@@ -39,7 +38,7 @@
         WHERE `username` = #{username}
     </update>
 
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO `user` (`creator_id`,
                             `modifier_id`,
                             `username`,
@@ -57,4 +56,12 @@
                 #{phoneNumberCountryCode},
                 #{phoneNumber})
     </insert>
+
+    <select id="getUsersByUsernamePhoneNumberEmail" resultMap="BaseResultMap">
+        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        FROM `user`
+        WHERE `username` = #{username}
+           OR (`phone_number` = #{phoneNumber} AND `phone_number_country_code` = #{phoneNumberCountryCode})
+           OR `email` = #{email}
+    </select>
 </mapper>

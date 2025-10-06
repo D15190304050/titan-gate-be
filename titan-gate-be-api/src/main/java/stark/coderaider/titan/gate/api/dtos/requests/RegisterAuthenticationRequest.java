@@ -6,7 +6,7 @@ import lombok.Data;
 public class RegisterAuthenticationRequest
 {
     private String username;
-    private String encryptedPassword;
+    private String password;
     private String email;
     private String phoneNumberCountryCode;
     private String phoneNumber;
