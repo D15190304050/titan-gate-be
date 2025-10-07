@@ -20,4 +20,7 @@ public class Role extends EntityBase
 
     @Column(type = "VARCHAR(255)", comment = "描述")
     private String description;    // 描述
+
+    @Column(type = "VARCHAR(50)", nullable = false, comment = "系统标识")
+    private String systemCode;
 }

@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>stark.dataworks</groupId>
-            <artifactId>web-commons</artifactId>
+            <artifactId>dubbo-air</artifactId>
         </dependency>
     </dependencies>
 </project>

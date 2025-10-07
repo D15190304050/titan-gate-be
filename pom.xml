@@ -111,9 +111,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp.version}</version>
+                <groupId>stark.dataworks</groupId>
+                <artifactId>dubbo-air</artifactId>
+                <version>${dataworks.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
