@@ -13,7 +13,7 @@ import stark.coderaider.titan.treasure.api.IConnectionTestService;
 @RequestMapping("/connection")
 public class ConnectionTestController
 {
-    @DubboReference(url = "${dubbo.service.profile.url}")
+    @DubboReference(url = "${dubbo.service.profile.url}", check = false)
     private IConnectionTestService connectionTestService;
 
     @GetMapping("/hello")

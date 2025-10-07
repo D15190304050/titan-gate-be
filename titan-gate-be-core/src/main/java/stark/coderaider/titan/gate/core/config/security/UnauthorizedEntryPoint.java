@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import stark.dataworks.basic.data.json.JsonSerializer;
-import stark.dataworks.boot.web.CommonErrorResponses;
 import stark.dataworks.boot.web.ServiceResponse;
 
 import jakarta.servlet.ServletException;
