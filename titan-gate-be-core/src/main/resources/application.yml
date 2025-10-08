@@ -27,7 +27,7 @@ dubbo:
     application:
         name: titan-gate-be-core
     protocol:
-        name: dubbo
+        name: tri
         port: 20880
 
 mybatis:
