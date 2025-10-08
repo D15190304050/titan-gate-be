@@ -9,7 +9,7 @@ import stark.coderaider.titan.gate.core.constants.SecurityConstants;
 import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
 import stark.coderaider.titan.gate.core.services.JwtService;
-import stark.coderaider.titan.gate.core.domain.dtos.LoginStateInfo;
+import stark.coderaider.titan.gate.core.domain.dtos.LoginStateTokenInfo;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 import stark.dataworks.boot.web.ServiceResponse;
 
@@ -36,11 +36,6 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
         writeAuthenticationInfo(request, response, user);
     }
 
-    public String prepareUserLoginInfoToken(User user)
-    {
-        return "";
-    }
-
     // For SSO, we only need to return a token.
     // Then other system can get user info like username by token.
     // Without SSO, we can return all the information.
@@ -50,23 +45,26 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
         String redirectUrl = redirectUrlAttribute == null ? null : (String) redirectUrlAttribute;
         log.info("redirectUrl = {}", redirectUrl);
 
-        LoginStateInfo loginStateInfo = generateLoginStateInfo(user);
-        ServiceResponse<LoginStateInfo> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginStateInfo, SecurityConstants.LOGIN_SUCCESS);
+        LoginStateTokenInfo loginStateTokenInfo = generateLoginStateTokenInfo(user);
+        ServiceResponse<LoginStateTokenInfo> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginStateTokenInfo, SecurityConstants.LOGIN_SUCCESS);
         loginSuccessResponse.writeToResponse(response);
     }
 
-    // TODO: Move this method to another class after integration of other login methods.
+    // TODO: Cache roles.
     private void cacheAuthentication(UserInfo user)
     {
         // Cache user info.
-//        redisOperation.cacheUser(user);
+        redisOperation.cacheUser(user);
     }
 
-    private LoginStateInfo generateLoginStateInfo(UserInfo user)
+    private LoginStateTokenInfo generateLoginStateTokenInfo(UserInfo user)
     {
         String token = jwtService.createToken(user);
-        LoginStateInfo loginStateToken = new LoginStateInfo();
+        LoginStateTokenInfo loginStateToken = new LoginStateTokenInfo();
         loginStateToken.setAccessToken(token);
+
+        // TODO: Add refresh token & expiration time.
+
         return loginStateToken;
     }
 }

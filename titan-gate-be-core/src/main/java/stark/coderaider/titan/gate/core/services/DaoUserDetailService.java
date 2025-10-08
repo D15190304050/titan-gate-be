@@ -34,21 +34,21 @@ public class DaoUserDetailService implements UserDetailsService, UserDetailsPass
         try {
             // TODO: Call RPC interface to get nickname, avatar url, gender.
 
-            User accountBaseInfo = userMapper.getUserByUsername(username);
-            if (accountBaseInfo == null) {
+            User user = userMapper.getUserByUsername(username);
+            if (user == null) {
                 throw new UsernameNotFoundException("User not found with username: " + username);
             }
             
             UserInfo userInfo = new UserInfo();
-            userInfo.setUsername(accountBaseInfo.getUsername());
-            userInfo.setPassword(accountBaseInfo.getEncryptedPassword());
-            userInfo.setId(accountBaseInfo.getId());
-            userInfo.setEmail(accountBaseInfo.getEmail());
+            userInfo.setUsername(user.getUsername());
+            userInfo.setPassword(user.getEncryptedPassword());
+            userInfo.setId(user.getId());
+            userInfo.setEmail(user.getEmail());
 
             // TODO: Call RPC interface to get nickname, avatar url, gender.
-//        userInfo.setNickname(accountBaseInfo.getNickname());
-//        userInfo.setAvatarUrl(accountBaseInfo.getAvatarUrl());
-//        userInfo.setGender(accountBaseInfo.getGender());
+//        userInfo.setNickname(user.getNickname());
+//        userInfo.setAvatarUrl(user.getAvatarUrl());
+//        userInfo.setGender(user.getGender());
 
             return userInfo;
         } catch (Exception e) {

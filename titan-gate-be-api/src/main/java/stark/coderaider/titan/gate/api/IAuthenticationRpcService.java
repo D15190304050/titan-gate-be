@@ -5,7 +5,7 @@ import stark.dataworks.boot.dubbo.ValidateArgs;
 import stark.dataworks.boot.web.ServiceResponse;
 
 @ValidateArgs
-public interface IAuthenticationService
+public interface IAuthenticationRpcService
 {
     ServiceResponse<Long> registerAuthentication(RegisterAuthenticationRequest request);
 }

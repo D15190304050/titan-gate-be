@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import stark.coderaider.titan.gate.api.IAuthenticationService;
+import stark.coderaider.titan.gate.api.IAuthenticationRpcService;
 import stark.coderaider.titan.gate.api.dtos.requests.RegisterAuthenticationRequest;
 import stark.coderaider.titan.gate.core.dao.UserMapper;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
@@ -20,7 +20,7 @@ import java.util.List;
 @DubboService
 @Service
 @LogArgumentsAndResponse
-public class AuthenticationService implements IAuthenticationService
+public class AuthenticationRpcService implements IAuthenticationRpcService
 {
     @Autowired
     private UserMapper userMapper;
@@ -67,21 +67,21 @@ public class AuthenticationService implements IAuthenticationService
                 email);
         if (!CollectionUtils.isEmpty(users))
         {
-            for (User accountBaseInfo : users)
+            for (User user : users)
             {
-                if (accountBaseInfo.getUsername().equals(username))
+                if (user.getUsername().equals(username))
                 {
                     message.setValue("The provided username already exists, try another one.");
                     return false;
                 }
 
-                if (accountBaseInfo.getPhoneNumber().equals(phoneNumber) && accountBaseInfo.getPhoneNumberCountryCode().equals(phoneNumberCountryCode))
+                if (user.getPhoneNumber().equals(phoneNumber) && user.getPhoneNumberCountryCode().equals(phoneNumberCountryCode))
                 {
                     message.setValue("The provided phone number already exists, try another one.");
                     return false;
                 }
 
-                if (accountBaseInfo.getEmail().equals(email))
+                if (user.getEmail().equals(email))
                 {
                     message.setValue("The provided email already exists, try another one.");
                     return false;

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import stark.coderaider.titan.gate.core.domain.dtos.LoginStateInfo;
+import stark.coderaider.titan.gate.core.domain.dtos.LoginStateTokenInfo;
 import stark.dataworks.basic.exceptions.ExceptionInfoFormatter;
 import stark.dataworks.boot.web.ServiceResponse;
 
@@ -22,7 +22,7 @@ public class LoginFailureJsonHandler implements AuthenticationFailureHandler
         String exceptionInfo = ExceptionInfoFormatter.formatMessageAndStackTrace(exception);
         log.error("Login failure: {}", exceptionInfo);
 
-        ServiceResponse<LoginStateInfo> loginResult = ServiceResponse.buildErrorResponse(-1, exceptionInfo);
+        ServiceResponse<LoginStateTokenInfo> loginResult = ServiceResponse.buildErrorResponse(-1, exceptionInfo);
         loginResult.writeToResponse(response);
     }
 }

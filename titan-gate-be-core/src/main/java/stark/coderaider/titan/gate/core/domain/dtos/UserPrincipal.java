@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserPrincipal
 {
-    private long accountId;
+    private long userId;
     private String username;
     private String nickname;
 }

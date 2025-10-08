@@ -8,8 +8,8 @@ import stark.dataworks.boot.autoconfig.web.LogRedisKeys;
 @NoArgsConstructor
 public class RedisKeyManager
 {
-    public static String getUserIdKey(long accountId)
+    public static String getUserIdKey(long userId)
     {
-        return RedisKeyPrefixes.USER + accountId;
+        return RedisKeyPrefixes.USER + userId;
     }
 }

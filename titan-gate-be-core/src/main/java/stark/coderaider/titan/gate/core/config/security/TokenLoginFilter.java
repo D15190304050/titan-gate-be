@@ -21,6 +21,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 @Slf4j
@@ -43,7 +44,8 @@ public class TokenLoginFilter extends OncePerRequestFilter
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
         // Check if authentication is already set to avoid circular calls
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+        if (SecurityContextHolder.getContext().getAuthentication() != null)
+        {
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,22 +55,25 @@ public class TokenLoginFilter extends OncePerRequestFilter
 
         if (StringUtils.hasText(token))
         {
-            UserPrincipal accountPrincipal = jwtService.parseUserPrincipal(token);
-            if (accountPrincipal != null)
+            UserPrincipal userPrincipal = jwtService.parseUserPrincipal(token);
+            if (userPrincipal != null)
             {
-                long accountId = accountPrincipal.getAccountId();
-                String userJson = redisQuickOperation.get(RedisKeyManager.getUserIdKey(accountId));
+                long userId = userPrincipal.getUserId();
+                String userJson = redisQuickOperation.get(RedisKeyManager.getUserIdKey(userId));
                 UserInfo user;
 
                 if (StringUtils.hasText(userJson))
                     user = JsonSerializer.deserialize(userJson, UserInfo.class);
                 else
                 {
-                    try {
-                        user = (UserInfo) userDetailsService.loadUserByUsername(accountPrincipal.getUsername());
+                    try
+                    {
+                        user = (UserInfo) userDetailsService.loadUserByUsername(userPrincipal.getUsername());
                         titanGateRedisOperation.cacheUser(user);
-                    } catch (Exception e) {
-                        log.error("Failed to load user details for username: " + accountPrincipal.getUsername(), e);
+                    }
+                    catch (Exception e)
+                    {
+                        log.error("Failed to load user details for username: {}", userPrincipal.getUsername(), e);
                         filterChain.doFilter(request, response);
                         return;
                     }
