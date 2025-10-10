@@ -10,15 +10,14 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
 import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
+import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
 import stark.coderaider.titan.treasure.api.IUserProfileRpcService;
 import stark.coderaider.titan.treasure.api.dtos.responses.UserProfileInfo;
 import stark.dataworks.boot.web.ServiceResponse;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.Date;
 
 @Component
@@ -35,9 +34,9 @@ public class JwtService
     @DubboReference(url = "${dubbo.service.profile.url}", check = false)
     private IUserProfileRpcService userProfileRpcService;
 
-    public String createToken(UserInfo userInfo)
+    public String createToken(UserPrincipal userPrincipal)
     {
-        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userInfo.getId());
+        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userPrincipal.getId());
         if (!userProfileInfo.isSuccess())
             throw new IllegalArgumentException("Failed to get user profile info. " + userProfileInfo.getMessage());
 
@@ -46,8 +45,8 @@ public class JwtService
         UserProfileInfo userProfile = userProfileInfo.getData();
         builder.withClaim(SecurityConstants.NICKNAME, userProfile.getNickname());
 
-        builder.withClaim(SecurityConstants.USER_ID, userInfo.getId());
-        builder.withClaim(SecurityConstants.USERNAME, userInfo.getUsername());
+        builder.withClaim(SecurityConstants.USER_ID, userPrincipal.getId());
+        builder.withClaim(SecurityConstants.USERNAME, userPrincipal.getUsername());
 
         ZonedDateTime expirationTime = ZonedDateTime.now(ZoneOffset.UTC).plusDays(TOKEN_EXPIRATION_IN_DAYS);
 
@@ -59,7 +58,7 @@ public class JwtService
         return verifier.verify(token);
     }
 
-    public UserPrincipal parseUserPrincipal(String token)
+    public UserInfo parseUserInfo(String token)
     {
         DecodedJWT decodedJwt = verify(token);
         Long userId = decodedJwt.getClaim(SecurityConstants.USER_ID).asLong();
@@ -67,7 +66,7 @@ public class JwtService
         String nickname = decodedJwt.getClaim(SecurityConstants.NICKNAME).asString();
 
         if (userId != null && username != null)
-            return new UserPrincipal(userId, username, nickname);
+            return new UserInfo(userId, username, nickname);
         return null;
     }
 

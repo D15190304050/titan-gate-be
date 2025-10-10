@@ -6,11 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
+import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
 import stark.coderaider.titan.gate.core.services.JwtService;
-import stark.coderaider.titan.gate.core.domain.dtos.LoginStateTokenInfo;
-import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
+import stark.coderaider.titan.gate.core.domain.dtos.responses.LoginResponse;
 import stark.dataworks.boot.web.ServiceResponse;
 
 import jakarta.servlet.ServletException;
@@ -31,7 +30,7 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException
     {
-        UserInfo user = (UserInfo) authentication.getPrincipal();
+        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         cacheAuthentication(user);
         writeAuthenticationInfo(request, response, user);
     }
@@ -39,28 +38,28 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
     // For SSO, we only need to return a token.
     // Then other system can get user info like username by token.
     // Without SSO, we can return all the information.
-    public void writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserInfo user) throws IOException
+    public void writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserPrincipal user) throws IOException
     {
-        Object redirectUrlAttribute = request.getAttribute(SecurityConstants.REDIRECT_URL);
-        String redirectUrl = redirectUrlAttribute == null ? null : (String) redirectUrlAttribute;
-        log.info("redirectUrl = {}", redirectUrl);
+//        Object redirectUrlAttribute = request.getAttribute(SecurityConstants.REDIRECT_URL);
+//        String redirectUrl = redirectUrlAttribute == null ? null : (String) redirectUrlAttribute;
+//        log.info("redirectUrl = {}", redirectUrl);
 
-        LoginStateTokenInfo loginStateTokenInfo = generateLoginStateTokenInfo(user);
-        ServiceResponse<LoginStateTokenInfo> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginStateTokenInfo, SecurityConstants.LOGIN_SUCCESS);
+        LoginResponse loginResponse = generateLoginStateTokenInfo(user);
+        ServiceResponse<LoginResponse> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginResponse, SecurityConstants.LOGIN_SUCCESS);
         loginSuccessResponse.writeToResponse(response);
     }
 
     // TODO: Cache roles.
-    private void cacheAuthentication(UserInfo user)
+    private void cacheAuthentication(UserPrincipal user)
     {
         // Cache user info.
         redisOperation.cacheUser(user);
     }
 
-    private LoginStateTokenInfo generateLoginStateTokenInfo(UserInfo user)
+    private LoginResponse generateLoginStateTokenInfo(UserPrincipal user)
     {
         String token = jwtService.createToken(user);
-        LoginStateTokenInfo loginStateToken = new LoginStateTokenInfo();
+        LoginResponse loginStateToken = new LoginResponse();
         loginStateToken.setAccessToken(token);
 
         // TODO: Add refresh token & expiration time.

@@ -103,6 +103,12 @@
 
         <dependency>
             <groupId>stark.coderaider</groupId>
+            <artifactId>titan-gate-be-login-state</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stark.coderaider</groupId>
             <artifactId>titan-treasure-be-api</artifactId>
             <version>${titan-treasure.version}</version>
         </dependency>

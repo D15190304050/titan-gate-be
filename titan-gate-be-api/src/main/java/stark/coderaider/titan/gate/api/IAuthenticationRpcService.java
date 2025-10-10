@@ -8,4 +8,5 @@ import stark.dataworks.boot.web.ServiceResponse;
 public interface IAuthenticationRpcService
 {
     ServiceResponse<Long> registerAuthentication(RegisterAuthenticationRequest request);
+
 }

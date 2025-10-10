@@ -7,12 +7,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
+import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
 import stark.coderaider.titan.gate.core.redis.RedisKeyManager;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
 import stark.coderaider.titan.gate.core.services.JwtService;
 import stark.coderaider.titan.gate.core.services.UserContextService;
-import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
+import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
 import stark.dataworks.basic.data.json.JsonSerializer;
 import stark.dataworks.basic.data.redis.RedisQuickOperation;
 import stark.dataworks.boot.web.TokenHandler;
@@ -55,25 +55,25 @@ public class TokenLoginFilter extends OncePerRequestFilter
 
         if (StringUtils.hasText(token))
         {
-            UserPrincipal userPrincipal = jwtService.parseUserPrincipal(token);
-            if (userPrincipal != null)
+            UserInfo userInfo = jwtService.parseUserInfo(token);
+            if (userInfo != null)
             {
-                long userId = userPrincipal.getUserId();
+                long userId = userInfo.getUserId();
                 String userJson = redisQuickOperation.get(RedisKeyManager.getUserIdKey(userId));
-                UserInfo user;
+                UserPrincipal user;
 
                 if (StringUtils.hasText(userJson))
-                    user = JsonSerializer.deserialize(userJson, UserInfo.class);
+                    user = JsonSerializer.deserialize(userJson, UserPrincipal.class);
                 else
                 {
                     try
                     {
-                        user = (UserInfo) userDetailsService.loadUserByUsername(userPrincipal.getUsername());
+                        user = (UserPrincipal) userDetailsService.loadUserByUsername(userInfo.getUsername());
                         titanGateRedisOperation.cacheUser(user);
                     }
                     catch (Exception e)
                     {
-                        log.error("Failed to load user details for username: {}", userPrincipal.getUsername(), e);
+                        log.error("Failed to load user details for username: {}", userInfo.getUsername(), e);
                         filterChain.doFilter(request, response);
                         return;
                     }

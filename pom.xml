@@ -17,6 +17,7 @@
     <modules>
         <module>titan-gate-be-api</module>
         <module>titan-gate-be-core</module>
+        <module>titan-gate-be-login-state</module>
     </modules>
 
     <properties>
