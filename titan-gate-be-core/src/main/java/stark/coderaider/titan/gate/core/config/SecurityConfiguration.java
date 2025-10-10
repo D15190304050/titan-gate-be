@@ -26,18 +26,6 @@ import stark.dataworks.basic.data.redis.RedisQuickOperation;
 public class SecurityConfiguration
 {
     @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private RedisQuickOperation redisQuickOperation;
-
-    @Autowired
-    private DaoUserDetailService daoUserDetailService;
-
-    @Autowired
-    private TitanGateRedisOperation titanGateRedisOperation;
-
-    @Autowired
     private LoginSuccessJsonHandler loginSuccessJsonHandler;
 
     @Autowired
@@ -76,7 +64,7 @@ public class SecurityConfiguration
     }
 
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
+    protected SecurityFilterChain securityFilterChain(HttpSecurity http, TokenLoginFilter tokenLoginFilter) throws Exception
     {
         http.authorizeHttpRequests(request ->
             {
@@ -102,7 +90,7 @@ public class SecurityConfiguration
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.addFilterBefore(new TokenLoginFilter(jwtService, redisQuickOperation, daoUserDetailService, titanGateRedisOperation), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(tokenLoginFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(usernamePasswordLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

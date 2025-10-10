@@ -1,9 +1,11 @@
 package stark.coderaider.titan.gate.core.config.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
@@ -25,20 +27,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
+@Component
 public class TokenLoginFilter extends OncePerRequestFilter
 {
-    private final JwtService jwtService;
-    private final RedisQuickOperation redisQuickOperation;
-    private final UserDetailsService userDetailsService;
-    private final TitanGateRedisOperation titanGateRedisOperation;
+    @Autowired
+    private JwtService jwtService;
 
-    public TokenLoginFilter(JwtService jwtService, RedisQuickOperation redisQuickOperation, UserDetailsService userDetailsService, TitanGateRedisOperation titanGateRedisOperation)
-    {
-        this.jwtService = jwtService;
-        this.redisQuickOperation = redisQuickOperation;
-        this.userDetailsService = userDetailsService;
-        this.titanGateRedisOperation = titanGateRedisOperation;
-    }
+    @Autowired
+    private RedisQuickOperation redisQuickOperation;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private TitanGateRedisOperation titanGateRedisOperation;
+
+    @Autowired
+    private UserContextService userContextService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
@@ -81,7 +86,7 @@ public class TokenLoginFilter extends OncePerRequestFilter
 
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                UserContextService.setAuthentication(authenticationToken);
+                userContextService.setCurrentUser(user);
             }
         }
 
