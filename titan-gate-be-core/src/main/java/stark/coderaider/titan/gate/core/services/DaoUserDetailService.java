@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.dao.UserMapper;
 import stark.coderaider.titan.gate.core.domain.dtos.UserDetailsImpl;
-import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 
 @Slf4j
@@ -24,7 +23,7 @@ public class DaoUserDetailService implements UserDetailsService, UserDetailsPass
     {
         int updateCount = userMapper.updatePasswordByUsername(user.getUsername(), newPassword);
         if (updateCount == 1)
-            ((UserPrincipal) user).setPassword(newPassword);
+            ((UserDetailsImpl) user).setPassword(newPassword);
 
         return user;
     }
@@ -34,8 +33,6 @@ public class DaoUserDetailService implements UserDetailsService, UserDetailsPass
     {
         try
         {
-            // TODO: Call RPC interface to get nickname, avatar url, gender.
-
             User user = userMapper.getUserByUsername(username);
             if (user == null)
                 throw new UsernameNotFoundException("User not found with username: " + username);

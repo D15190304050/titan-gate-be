@@ -1,4 +1,4 @@
-package stark.coderaider.titan.gate.core.domain.dtos;
+package stark.coderaider.titan.gate.loginstate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserInfo
 {
-    private long userId;
+    private long id;
     private String username;
     private String nickname;
 }

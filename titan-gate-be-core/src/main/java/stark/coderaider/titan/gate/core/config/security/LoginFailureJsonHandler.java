@@ -22,7 +22,12 @@ public class LoginFailureJsonHandler implements AuthenticationFailureHandler
         String exceptionInfo = ExceptionInfoFormatter.formatMessageAndStackTrace(exception);
         log.error("Login failure: {}", exceptionInfo);
 
-        ServiceResponse<LoginResponse> loginResult = ServiceResponse.buildErrorResponse(-1, exceptionInfo);
+        writeLoginFailure(response, exceptionInfo);
+    }
+
+    public static void writeLoginFailure(HttpServletResponse response, String message) throws IOException
+    {
+        ServiceResponse<LoginResponse> loginResult = ServiceResponse.buildErrorResponse(-1, message);
         loginResult.writeToResponse(response);
     }
 }

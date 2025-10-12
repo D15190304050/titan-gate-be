@@ -1,11 +1,10 @@
-package stark.coderaider.titan.gate.core.services;
+package stark.coderaider.titan.gate.loginstate;
 
 import lombok.Setter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.annotation.ScopedProxyMode;
-import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 
 /**
  * Holds the current request's user context.
@@ -17,19 +16,19 @@ import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 public class UserContextService
 {
     @Setter
-    private UserPrincipal currentUser;
+    private UserInfo currentUser;
 
-    private static final UserPrincipal ANONYMOUS_USER;
+    private static final UserInfo ANONYMOUS_USER;
 
     static
     {
-        ANONYMOUS_USER = new UserPrincipal();
+        ANONYMOUS_USER = new UserInfo();
         ANONYMOUS_USER.setId(-1L);
         ANONYMOUS_USER.setUsername("anonymous");
-        ANONYMOUS_USER.setPassword("anonymous");
+        ANONYMOUS_USER.setNickname("anonymous");
     }
 
-    public UserPrincipal getCurrentUser()
+    public UserInfo getCurrentUser()
     {
         return currentUser != null ? currentUser : ANONYMOUS_USER;
     }

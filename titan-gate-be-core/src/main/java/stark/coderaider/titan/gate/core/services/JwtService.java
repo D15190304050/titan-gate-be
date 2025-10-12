@@ -10,8 +10,8 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.loginstate.UserPrincipal;
-import stark.coderaider.titan.gate.core.domain.dtos.UserInfo;
+import stark.coderaider.titan.gate.core.domain.dtos.UserDetailsImpl;
+import stark.coderaider.titan.gate.loginstate.UserInfo;
 import stark.coderaider.titan.treasure.api.IUserProfileRpcService;
 import stark.coderaider.titan.treasure.api.dtos.responses.UserProfileInfo;
 import stark.dataworks.boot.web.ServiceResponse;
@@ -34,9 +34,9 @@ public class JwtService
     @DubboReference(url = "${dubbo.service.profile.url}", check = false)
     private IUserProfileRpcService userProfileRpcService;
 
-    public String createToken(UserPrincipal userPrincipal)
+    public String createToken(UserDetailsImpl userInfo)
     {
-        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userPrincipal.getId());
+        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userInfo.getId());
         if (!userProfileInfo.isSuccess())
             throw new IllegalArgumentException("Failed to get user profile info. " + userProfileInfo.getMessage());
 
@@ -45,8 +45,8 @@ public class JwtService
         UserProfileInfo userProfile = userProfileInfo.getData();
         builder.withClaim(SecurityConstants.NICKNAME, userProfile.getNickname());
 
-        builder.withClaim(SecurityConstants.USER_ID, userPrincipal.getId());
-        builder.withClaim(SecurityConstants.USERNAME, userPrincipal.getUsername());
+        builder.withClaim(SecurityConstants.USER_ID, userInfo.getId());
+        builder.withClaim(SecurityConstants.USERNAME, userInfo.getUsername());
 
         ZonedDateTime expirationTime = ZonedDateTime.now(ZoneOffset.UTC).plusDays(TOKEN_EXPIRATION_IN_DAYS);
 
@@ -55,12 +55,22 @@ public class JwtService
 
     public DecodedJWT verify(String token)
     {
-        return verifier.verify(token);
+        try
+        {
+            return verifier.verify(token);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     public UserInfo parseUserInfo(String token)
     {
         DecodedJWT decodedJwt = verify(token);
+        if (decodedJwt == null)
+            return null;
+
         Long userId = decodedJwt.getClaim(SecurityConstants.USER_ID).asLong();
         String username = decodedJwt.getClaim(SecurityConstants.USERNAME).asString();
         String nickname = decodedJwt.getClaim(SecurityConstants.NICKNAME).asString();

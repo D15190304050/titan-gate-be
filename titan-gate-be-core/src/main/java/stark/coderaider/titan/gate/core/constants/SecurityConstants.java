@@ -2,6 +2,8 @@ package stark.coderaider.titan.gate.core.constants;
 
 import org.springframework.http.HttpHeaders;
 
+import java.util.List;
+
 public class SecurityConstants
 {
     private SecurityConstants()
@@ -22,11 +24,10 @@ public class SecurityConstants
     public static final String SSO_COOKIE_NAME = "titan_gate_login";
     public static final String REDIRECT_URL = "redirect_url";
 
-    public static final String[] NON_AUTHENTICATE_URIS =
-        {
-            DEFAULT_LOGIN_URI,
-            "/connection/**",
-            "/auth/**",
-            "/public/**",
-        };
+    public static final List<String> NON_AUTHENTICATION_URIS = List.of(
+        DEFAULT_LOGIN_URI,
+        "/connection/**",
+        "/auth/**",
+        "/public/**"
+    );
 }

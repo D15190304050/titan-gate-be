@@ -16,10 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 import stark.coderaider.titan.gate.core.config.security.*;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
-import stark.coderaider.titan.gate.core.services.DaoUserDetailService;
-import stark.coderaider.titan.gate.core.services.JwtService;
-import stark.dataworks.basic.data.redis.RedisQuickOperation;
 
 @Configuration
 @EnableWebSecurity
@@ -68,7 +64,8 @@ public class SecurityConfiguration
     {
         http.authorizeHttpRequests(request ->
             {
-                request.requestMatchers(SecurityConstants.NON_AUTHENTICATE_URIS).permitAll();
+                String[] nonAuthenticateUrisArray = SecurityConstants.NON_AUTHENTICATION_URIS.toArray(new String[0]);
+                request.requestMatchers(nonAuthenticateUrisArray).permitAll();
                 request.anyRequest().authenticated();
             })
             .exceptionHandling(customizer ->
