@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.dao.UserMapper;
+import stark.coderaider.titan.gate.core.domain.dtos.UserDetailsImpl;
 import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 
@@ -39,18 +40,18 @@ public class DaoUserDetailService implements UserDetailsService, UserDetailsPass
             if (user == null)
                 throw new UsernameNotFoundException("User not found with username: " + username);
 
-            UserPrincipal userPrincipal = new UserPrincipal();
-            userPrincipal.setUsername(user.getUsername());
-            userPrincipal.setPassword(user.getEncryptedPassword());
-            userPrincipal.setId(user.getId());
-            userPrincipal.setEmail(user.getEmail());
+            UserDetailsImpl userDetails = new UserDetailsImpl();
+            userDetails.setUsername(user.getUsername());
+            userDetails.setPassword(user.getEncryptedPassword());
+            userDetails.setId(user.getId());
+            userDetails.setEmail(user.getEmail());
 
             // TODO: Call RPC interface to get nickname, avatar url, gender.
 //        userInfo.setNickname(user.getNickname());
 //        userInfo.setAvatarUrl(user.getAvatarUrl());
 //        userInfo.setGender(user.getGender());
 
-            return userPrincipal;
+            return userDetails;
         }
         catch (Exception e)
         {

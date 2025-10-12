@@ -39,8 +39,6 @@ public class UsernamePasswordLoginFilter extends UsernamePasswordAuthenticationF
                 LoginRequest loginRequest = JsonSerializer.deserialize(request.getInputStream(), LoginRequest.class);
                 String username = loginRequest.getUsername();
                 String password = loginRequest.getPassword();
-                String rememberMe = loginRequest.getRememberMe();
-                request.setAttribute(SecurityConstants.REMEMBER_ME, rememberMe);
                 UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(username, password);
                 setDetails(request, authenticationRequest);
 
