@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
-import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
+import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 import stark.coderaider.titan.gate.core.redis.RedisKeyManager;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
 import stark.coderaider.titan.gate.core.services.JwtService;

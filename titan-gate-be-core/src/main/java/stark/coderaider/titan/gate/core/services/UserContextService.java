@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.annotation.ScopedProxyMode;
-import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
+import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 
 /**
  * Holds the current request's user context.
@@ -16,7 +16,6 @@ import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserContextService
 {
-
     @Setter
     private UserPrincipal currentUser;
 

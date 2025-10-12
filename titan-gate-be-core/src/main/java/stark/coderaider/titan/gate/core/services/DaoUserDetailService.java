@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.dao.UserMapper;
-import stark.coderaider.titan.gate.core.domain.dtos.UserPrincipal;
+import stark.coderaider.titan.gate.loginstate.UserPrincipal;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 
 @Slf4j
