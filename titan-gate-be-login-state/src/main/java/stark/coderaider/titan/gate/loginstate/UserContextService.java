@@ -33,7 +33,7 @@ public class UserContextService
         return currentUser != null ? currentUser : ANONYMOUS_USER;
     }
 
-    public Long getCurrentUserId()
+    public long getCurrentUserId()
     {
         return getCurrentUser().getId();
     }
