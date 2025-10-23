@@ -60,7 +60,7 @@ public class SecurityConfiguration
     }
 
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http, TokenLoginFilter tokenLoginFilter) throws Exception
+    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http.authorizeHttpRequests(request ->
             {
@@ -87,7 +87,6 @@ public class SecurityConfiguration
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.addFilterBefore(tokenLoginFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(usernamePasswordLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
