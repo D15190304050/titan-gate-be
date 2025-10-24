@@ -1,5 +1,6 @@
 package stark.coderaider.titan.gate.core.config.security;
 
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,20 +26,23 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
     private JwtService jwtService;
 
     @Autowired
-    private TitanGateRedisOperation redisOperation;
+    private TitanGateRedisOperation titanGateRedisOperation;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException
     {
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
 //        cacheAuthentication(user);
-        writeAuthenticationInfo(request, response, user);
+        String accessToken = writeAuthenticationInfo(request, response, user);
+
+        // Set cookie for SSO.
+        response.addCookie(new Cookie(SecurityConstants.SSO_COOKIE_NAME, accessToken));
     }
 
     // For SSO, we only need to return a token.
     // Then other system can get user info like username by token.
     // Without SSO, we can return all the information.
-    public void writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserDetailsImpl user) throws IOException
+    public String writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserDetailsImpl user) throws IOException
     {
 //        Object redirectUrlAttribute = request.getAttribute(SecurityConstants.REDIRECT_URL);
 //        String redirectUrl = redirectUrlAttribute == null ? null : (String) redirectUrlAttribute;
@@ -47,13 +51,14 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
         LoginResponse loginResponse = generateLoginStateTokenInfo(user);
         ServiceResponse<LoginResponse> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginResponse, SecurityConstants.LOGIN_SUCCESS);
         loginSuccessResponse.writeToResponse(response);
+
+        return loginResponse.getAccessToken();
     }
 
     // TODO: Cache roles in other services.
     private void cacheAuthentication(UserDetailsImpl user)
     {
         // Cache user info.
-//        redisOperation.cacheUser(user);
     }
 
     private LoginResponse generateLoginStateTokenInfo(UserDetailsImpl user)
