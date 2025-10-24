@@ -33,26 +33,25 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
     {
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
 //        cacheAuthentication(user);
-        String accessToken = writeAuthenticationInfo(request, response, user);
-
-        // Set cookie for SSO.
-        response.addCookie(new Cookie(SecurityConstants.SSO_COOKIE_NAME, accessToken));
+        writeAuthenticationInfo(request, response, user);
     }
 
     // For SSO, we only need to return a token.
     // Then other system can get user info like username by token.
     // Without SSO, we can return all the information.
-    public String writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserDetailsImpl user) throws IOException
+    public void writeAuthenticationInfo(HttpServletRequest request, HttpServletResponse response, UserDetailsImpl user) throws IOException
     {
 //        Object redirectUrlAttribute = request.getAttribute(SecurityConstants.REDIRECT_URL);
 //        String redirectUrl = redirectUrlAttribute == null ? null : (String) redirectUrlAttribute;
 //        log.info("redirectUrl = {}", redirectUrl);
 
         LoginResponse loginResponse = generateLoginStateTokenInfo(user);
+
+        // Set cookie for SSO.
+        response.addCookie(new Cookie(SecurityConstants.SSO_COOKIE_NAME, loginResponse.getAccessToken()));
+
         ServiceResponse<LoginResponse> loginSuccessResponse = ServiceResponse.buildSuccessResponse(loginResponse, SecurityConstants.LOGIN_SUCCESS);
         loginSuccessResponse.writeToResponse(response);
-
-        return loginResponse.getAccessToken();
     }
 
     // TODO: Cache roles in other services.
