@@ -48,9 +48,4 @@ public class UserDetailsImpl implements UserDetails
     {
         return username;
     }
-
-    public UserInfo toUserInfo()
-    {
-        return new UserInfo(id, username, nickname);
-    }
 }

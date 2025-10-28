@@ -28,6 +28,7 @@ public class SecurityConstants
         DEFAULT_LOGIN_URI,
         "/connection/**",
         "/auth/**",
+        "/sso/verify-token",
         "/public/**"
     );
 }

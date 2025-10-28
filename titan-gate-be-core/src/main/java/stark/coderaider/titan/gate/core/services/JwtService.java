@@ -18,6 +18,7 @@ import stark.dataworks.boot.web.ServiceResponse;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Component
@@ -76,7 +77,7 @@ public class JwtService
         String nickname = decodedJwt.getClaim(SecurityConstants.NICKNAME).asString();
 
         if (userId != null && username != null)
-            return new UserInfo(userId, username, nickname);
+            return new UserInfo(userId, username, nickname, new ArrayList<>());
         return null;
     }
 

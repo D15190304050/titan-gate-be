@@ -9,7 +9,7 @@ import org.springframework.core.Ordered;
 public class FilterConfiguration
 {
     @Bean
-    public FilterRegistrationBean<TitanLoginStateFilter> titanLoginStateFilter(TitanLoginStateFilter titanLoginStateFilter)
+    public FilterRegistrationBean<TitanLoginStateFilter> titanLoginStateFilterRegistration(TitanLoginStateFilter titanLoginStateFilter)
     {
         FilterRegistrationBean<TitanLoginStateFilter> registration = new FilterRegistrationBean<>();
 
