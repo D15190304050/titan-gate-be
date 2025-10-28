@@ -2,12 +2,14 @@ package stark.coderaider.titan.gate.core.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import stark.coderaider.titan.gate.api.IAuthenticationRpcService;
 import stark.coderaider.titan.gate.api.dtos.requests.RegisterAuthenticationRequest;
+import stark.coderaider.titan.gate.api.dtos.responses.UserAuthenticationInfo;
 import stark.coderaider.titan.gate.core.dao.UserMapper;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 import stark.dataworks.basic.params.OutValue;
@@ -105,5 +107,16 @@ public class AuthenticationRpcService implements IAuthenticationRpcService
         user.setPhoneNumberCountryCode(request.getPhoneNumberCountryCode());
         user.setState(0);
         return user;
+    }
+
+    public ServiceResponse<UserAuthenticationInfo> getUserAuthenticationInfo(long userId)
+    {
+        User user = userMapper.getUserById(userId);
+        if (user == null)
+            return ServiceResponse.buildErrorResponse(-100, "There is no user with ID: " + userId + ".");
+
+        UserAuthenticationInfo userAuthenticationInfo = new UserAuthenticationInfo();
+        BeanUtils.copyProperties(user, userAuthenticationInfo);
+        return ServiceResponse.buildSuccessResponse(userAuthenticationInfo);
     }
 }

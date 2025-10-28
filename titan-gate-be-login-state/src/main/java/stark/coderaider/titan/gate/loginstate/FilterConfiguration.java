@@ -4,29 +4,32 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 public class FilterConfiguration
 {
     @Bean
-    public FilterRegistrationBean<TitanLoginStateFilter> titanLoginStateFilterRegistration(TitanLoginStateFilter titanLoginStateFilter)
+    public FilterRegistrationBean<TitanLoginStateFilter> titanLoginStateFilterRegistration()
     {
-        FilterRegistrationBean<TitanLoginStateFilter> registration = new FilterRegistrationBean<>();
+        TitanLoginStateFilter titanLoginStateFilter = new TitanLoginStateFilter();
+        return registerFilter(titanLoginStateFilter, Ordered.HIGHEST_PRECEDENCE + 2);
+    }
 
-        // 1. 设置要注册的 Filter 实例
-        registration.setFilter(titanLoginStateFilter);
+    @Bean
+    public FilterRegistrationBean<UserContextCleanFilter> userContextCleanFilterRegistration()
+    {
+        UserContextCleanFilter userContextCleanFilter = new UserContextCleanFilter();
+        return registerFilter(userContextCleanFilter, Ordered.HIGHEST_PRECEDENCE + 1);
+    }
 
-        // 2. 设置 Filter 匹配的 URL 模式（例如，匹配所有请求）
+    public <T extends OncePerRequestFilter> FilterRegistrationBean<T> registerFilter(T filter, int precedence)
+    {
+        FilterRegistrationBean<T> registration = new FilterRegistrationBean<>();
+        registration.setFilter(filter);
         registration.addUrlPatterns("/*");
-
-        // 3. 设置 Filter 的执行顺序
-        // Ordered.HIGHEST_PRECEDENCE 表示最高的优先级，即最先执行
-        // 较低的数字表示较高的优先级。如果有很多 Filter，可以按需设置数字
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
-
-        // 4. (可选) 设置 Filter 名称
-        registration.setName("titanLoginStateFilter");
-
+        registration.setOrder(precedence);
+        registration.setName(filter.getClass().getSimpleName());
         return registration;
     }
 }

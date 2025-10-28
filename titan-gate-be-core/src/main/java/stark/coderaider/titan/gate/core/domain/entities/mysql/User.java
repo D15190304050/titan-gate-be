@@ -7,6 +7,7 @@ import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.annotations.Column;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
+// TODO: Add nickname.
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE, comment = "Information that used for user login.")
@@ -29,4 +30,7 @@ public class User extends EntityBase
 
     @Column(type = "VARCHAR(16)", nullable = false, comment = "Phone number.")
     private String phoneNumber;
+
+//    @Column(type = "VARCHAR(50)", nullable = false, comment = "Nickname of the user.")
+//    private String nickname;       // 昵称，展示用，不要求唯一
 }

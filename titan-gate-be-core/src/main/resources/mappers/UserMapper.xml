@@ -64,4 +64,10 @@
            OR (`phone_number` = #{phoneNumber} AND `phone_number_country_code` = #{phoneNumberCountryCode})
            OR `email` = #{email}
     </select>
+
+    <select id="getUserById" resultMap="BaseResultMap">
+        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        FROM `user`
+        WHERE `id` = #{id}
+    </select>
 </mapper>
