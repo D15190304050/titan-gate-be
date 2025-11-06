@@ -10,6 +10,23 @@ spring:
             host: localhost
             #            port: 6379
             port: 10079
+    security:
+        oauth2:
+            client:
+                registration:
+                    github:
+                        client-id: Ov23likcvSZR6zWHPTN4       # ⚠️ 修改为你自己的 GitHub OAuth 应用 ID
+                        client-secret: 78830eb5eeda5eb50143030db1140d47bd399c6c  # ⚠️ 修改为你自己的 GitHub OAuth 应用 Secret
+                        redirect-uri: http://localhost:${server.port}/login/oauth2/code/github
+                        scope:
+                            - read:user
+                            - user:email
+                provider:
+                    github:
+                        authorization-uri: https://github.com/login/oauth/authorize
+                        token-uri: https://github.com/login/oauth/access_token
+                        user-info-uri: https://api.github.com/user
+                        user-name-attribute: login
 
 dubbo:
     service:
