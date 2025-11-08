@@ -35,4 +35,9 @@ dubbo:
 
 titan:
     gate:
+        front-end:
+            base-url: http://localhost:3710
         jwt-secret: q4~@x2uC$f@M2x*^e5&DB^L!3~)6@+
+        oauth2:
+            login-success-url: ${titan.gate.front-end.base-url}/oauth2/login-success
+            new-user-url: ${titan.gate.front-end.base-url}/oauth2/new-user

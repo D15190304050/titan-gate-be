@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
 import stark.coderaider.titan.gate.core.domain.dtos.UserDetailsImpl;
+import stark.coderaider.titan.gate.core.domain.entities.mysql.User;
 import stark.coderaider.titan.gate.loginstate.UserInfo;
 import stark.coderaider.titan.treasure.api.IUserProfileRpcService;
 import stark.coderaider.titan.treasure.api.dtos.responses.UserProfileInfo;
@@ -35,19 +36,33 @@ public class JwtService
     @DubboReference(url = "${dubbo.service.profile.url}", check = false)
     private IUserProfileRpcService userProfileRpcService;
 
-    public String createToken(UserDetailsImpl userInfo)
+    public String generateToken(UserDetailsImpl user)
     {
-        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userInfo.getId());
+        UserProfileInfo userProfile = getUserProfileInfo(user.getId());
+        return generateToken(userProfile.getNickname(), user.getId(), user.getUsername());
+    }
+
+    public String generateToken(User user)
+    {
+        UserProfileInfo userProfile = getUserProfileInfo(user.getId());
+        return generateToken(userProfile.getNickname(), user.getId(), user.getUsername());
+    }
+
+    private UserProfileInfo getUserProfileInfo(long userId)
+    {
+        ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userId);
         if (!userProfileInfo.isSuccess())
             throw new IllegalArgumentException("Failed to get user profile info. " + userProfileInfo.getMessage());
 
+        return userProfileInfo.getData();
+    }
+
+    private String generateToken(String nickname, Long userId, String username)
+    {
         JWTCreator.Builder builder = JWT.create();
-
-        UserProfileInfo userProfile = userProfileInfo.getData();
-        builder.withClaim(SecurityConstants.NICKNAME, userProfile.getNickname());
-
-        builder.withClaim(SecurityConstants.USER_ID, userInfo.getId());
-        builder.withClaim(SecurityConstants.USERNAME, userInfo.getUsername());
+        builder.withClaim(SecurityConstants.NICKNAME, nickname);
+        builder.withClaim(SecurityConstants.USER_ID, userId);
+        builder.withClaim(SecurityConstants.USERNAME, username);
 
         ZonedDateTime expirationTime = ZonedDateTime.now(ZoneOffset.UTC).plusDays(TOKEN_EXPIRATION_IN_DAYS);
 

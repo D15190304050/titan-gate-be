@@ -70,4 +70,10 @@
         FROM `user`
         WHERE `id` = #{id}
     </select>
+
+    <select id="getUserByEmail" resultMap="BaseResultMap">
+        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        FROM `user`
+        WHERE `email` = #{email}
+    </select>
 </mapper>

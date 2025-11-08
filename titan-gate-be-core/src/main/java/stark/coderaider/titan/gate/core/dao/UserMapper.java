@@ -14,4 +14,5 @@ public interface UserMapper
     int insert(User user);
     List<User> getUsersByUsernamePhoneNumberEmail(@Param("username") String username, @Param("phoneNumber") String phoneNumber, @Param("phoneNumberCountryCode") String phoneNumberCountryCode, @Param("email") String email);
     User getUserById(long id);
+    User getUserByEmail(String email);
 }

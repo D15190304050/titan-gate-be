@@ -62,7 +62,7 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
 
     private LoginResponse generateLoginStateTokenInfo(UserDetailsImpl user)
     {
-        String token = jwtService.createToken(user);
+        String token = jwtService.generateToken(user);
         LoginResponse loginStateToken = new LoginResponse();
         loginStateToken.setAccessToken(token);
 
