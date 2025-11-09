@@ -32,6 +32,9 @@ public class SecurityConfiguration
     private LogoutSuccessJsonHandler logoutSuccessJsonHandler;
 
     @Autowired
+    private OAuth2SuccessHandler oauth2SuccessHandler;
+
+    @Autowired
     private CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
@@ -81,7 +84,7 @@ public class SecurityConfiguration
             })
             .oauth2Login(customizer -> 
             {
-                customizer.successHandler(new OAuth2SuccessHandler());
+                customizer.successHandler(oauth2SuccessHandler);
                 customizer.failureHandler(loginFailureJsonHandler);
             })
             .logout(customizer ->
