@@ -18,7 +18,7 @@ public class SsoService
     @Autowired
     private JwtService jwtService;
 
-    public ServiceResponse<UserInfo> verifyToken(HttpServletRequest request)
+    public ServiceResponse<UserInfo> validateToken(HttpServletRequest request)
     {
         String token = TokenHandler.getTokenFromRequest(request, SecurityConstants.SSO_COOKIE_NAME);
         UserInfo userInfo = jwtService.parseUserInfo(token);

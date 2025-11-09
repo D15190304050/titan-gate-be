@@ -38,29 +38,24 @@ public class JwtService
 
     public String generateToken(UserDetailsImpl user)
     {
-        UserProfileInfo userProfile = getUserProfileInfo(user.getId());
-        return generateToken(userProfile.getNickname(), user.getId(), user.getUsername());
+        return generateToken(user.getId(), user.getUsername());
     }
 
     public String generateToken(User user)
     {
-        UserProfileInfo userProfile = getUserProfileInfo(user.getId());
-        return generateToken(userProfile.getNickname(), user.getId(), user.getUsername());
+        return generateToken(user.getId(), user.getUsername());
     }
 
-    private UserProfileInfo getUserProfileInfo(long userId)
+    private String generateToken(Long userId, String username)
     {
         ServiceResponse<UserProfileInfo> userProfileInfo = userProfileRpcService.getUserProfileInfo(userId);
         if (!userProfileInfo.isSuccess())
             throw new IllegalArgumentException("Failed to get user profile info. " + userProfileInfo.getMessage());
 
-        return userProfileInfo.getData();
-    }
+        UserProfileInfo userProfile = userProfileInfo.getData();
 
-    private String generateToken(String nickname, Long userId, String username)
-    {
         JWTCreator.Builder builder = JWT.create();
-        builder.withClaim(SecurityConstants.NICKNAME, nickname);
+        builder.withClaim(SecurityConstants.NICKNAME, userProfile.getNickname());
         builder.withClaim(SecurityConstants.USER_ID, userId);
         builder.withClaim(SecurityConstants.USERNAME, username);
 
