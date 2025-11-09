@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 import stark.coderaider.titan.gate.core.config.security.*;
+import stark.coderaider.titan.gate.core.config.security.OAuth2SuccessHandler;
 import stark.coderaider.titan.gate.core.constants.SecurityConstants;
 
 @Configuration
@@ -76,6 +77,11 @@ public class SecurityConfiguration
             .formLogin(customizer ->
             {
                 customizer.successHandler(loginSuccessJsonHandler);
+                customizer.failureHandler(loginFailureJsonHandler);
+            })
+            .oauth2Login(customizer -> 
+            {
+                customizer.successHandler(new OAuth2SuccessHandler());
                 customizer.failureHandler(loginFailureJsonHandler);
             })
             .logout(customizer ->
