@@ -58,7 +58,18 @@
     </insert>
 
     <select id="getUsersByUsernamePhoneNumberEmail" resultMap="BaseResultMap">
-        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        SELECT
+            `id`,
+            `creator_id`,
+            `creation_time`,
+            `modifier_id`,
+            `modification_time`,
+            `username`,
+            `encrypted_password`,
+            `state`,
+            `email`,
+            `phone_number_country_code`,
+            `phone_number`
         FROM `user`
         WHERE `username` = #{username}
            OR (`phone_number` = #{phoneNumber} AND `phone_number_country_code` = #{phoneNumberCountryCode})
@@ -66,13 +77,35 @@
     </select>
 
     <select id="getUserById" resultMap="BaseResultMap">
-        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        SELECT
+            `id`,
+            `creator_id`,
+            `creation_time`,
+            `modifier_id`,
+            `modification_time`,
+            `username`,
+            `encrypted_password`,
+            `state`,
+            `email`,
+            `phone_number_country_code`,
+            `phone_number`
         FROM `user`
         WHERE `id` = #{id}
     </select>
 
     <select id="getUserByEmail" resultMap="BaseResultMap">
-        SELECT `username`, `phone_number`, `phone_number_country_code`, `email`
+        SELECT
+            `id`,
+            `creator_id`,
+            `creation_time`,
+            `modifier_id`,
+            `modification_time`,
+            `username`,
+            `encrypted_password`,
+            `state`,
+            `email`,
+            `phone_number_country_code`,
+            `phone_number`
         FROM `user`
         WHERE `email` = #{email}
     </select>

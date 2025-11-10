@@ -30,6 +30,7 @@ public class SecurityConstants
         "/auth/**",
         "/oauth2/**",
         "/sso/validate-token",
-        "/public/**"
+        "/public/**",
+        "/debug/**"
     );
 }
