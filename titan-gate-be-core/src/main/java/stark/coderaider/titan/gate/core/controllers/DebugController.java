@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import stark.coderaider.titan.gate.core.config.security.OAuth2SuccessHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
