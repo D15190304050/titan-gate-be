@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stark.coderaider.titan.gate.core.dao.RoleMapper">
+    <resultMap id="BaseResultMap" type="stark.coderaider.titan.gate.core.domain.entities.mysql.Role">
+        <id column="id" property="id"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="creation_time" property="creationTime"/>
+        <result column="modifier_id" property="modifierId"/>
+        <result column="modification_time" property="modificationTime"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="system_code" property="systemCode"/>
+    </resultMap>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT * FROM `role` WHERE `id` = #{id}
+    </select>
+
+    <select id="getByCode" resultMap="BaseResultMap">
+        SELECT * FROM `role` WHERE `code` = #{code}
+    </select>
+
+    <select id="listBySystem" resultMap="BaseResultMap">
+        SELECT * FROM `role` WHERE `system_code` = #{systemCode}
+    </select>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT * FROM `role`
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `role` (`creator_id`, `modifier_id`, `code`, `name`, `description`, `system_code`)
+        VALUES (#{creatorId}, #{modifierId}, #{code}, #{name}, #{description}, #{systemCode})
+    </insert>
+
+    <update id="update">
+        UPDATE `role`
+        SET `name` = #{name},
+            `description` = #{description},
+            `modifier_id` = #{modifierId},
+            `modification_time` = NOW()
+        WHERE `id` = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `role` WHERE `id` = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        DELETE FROM `role` WHERE `id` IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        SELECT * FROM `role` WHERE `id` IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

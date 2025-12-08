@@ -12,4 +12,9 @@ public class RedisKeyManager
     {
         return RedisKeyPrefixes.USER + userId;
     }
+
+    public static String getUserRolesKey(long userId, String systemCode)
+    {
+        return RedisKeyPrefixes.USER_ROLES + userId + "_" + systemCode;
+    }
 }
