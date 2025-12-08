@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stark.coderaider.titan.gate.core.dao.UserRoleMapper">
+    <resultMap id="BaseResultMap" type="stark.coderaider.titan.gate.core.domain.entities.mysql.UserRole">
+        <id column="id" property="id"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="creation_time" property="creationTime"/>
+        <result column="modifier_id" property="modifierId"/>
+        <result column="modification_time" property="modificationTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="system_code" property="systemCode"/>
+        <result column="role_ids" property="roleIds"/>
+    </resultMap>
+
+    <select id="getByUserAndSystem" resultMap="BaseResultMap">
+        SELECT * FROM `user_role` WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
+    </select>
+
+    <select id="listByUser" resultMap="BaseResultMap">
+        SELECT * FROM `user_role` WHERE `user_id` = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `user_role` (`creator_id`, `modifier_id`, `user_id`, `system_code`, `role_ids`)
+        VALUES (#{creatorId}, #{modifierId}, #{userId}, #{systemCode}, #{roleIds})
+    </insert>
+
+    <update id="update">
+        UPDATE `user_role`
+        SET `role_ids` = #{roleIds},
+            `modifier_id` = #{modifierId},
+            `modification_time` = NOW()
+        WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
+    </update>
+</mapper>
