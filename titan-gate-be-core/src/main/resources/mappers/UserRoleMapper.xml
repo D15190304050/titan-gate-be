@@ -28,8 +28,7 @@
     <update id="update">
         UPDATE `user_role`
         SET `role_ids` = #{roleIds},
-            `modifier_id` = #{modifierId},
-            `modification_time` = NOW()
+            `modifier_id` = #{modifierId}
         WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
     </update>
 </mapper>

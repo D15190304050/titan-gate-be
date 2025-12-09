@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserRolesQueryRequest
+public class GetUserRolesRequest
 {
     @Min(value = 1, message = "UserId must be positive.")
     private long userId;

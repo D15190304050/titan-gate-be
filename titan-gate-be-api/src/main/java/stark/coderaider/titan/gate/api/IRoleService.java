@@ -3,12 +3,12 @@ package stark.coderaider.titan.gate.api;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import stark.coderaider.titan.gate.api.dtos.requests.HasRoleRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleCreateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleDeleteRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleQueryRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleUpdateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.UserRoleUpdateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.UserRolesQueryRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.CreateRoleRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.DeleteRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.ListRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.UpdateRoleRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.UpdateUserRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.GetUserRolesRequest;
 import stark.coderaider.titan.gate.api.dtos.responses.RoleResponse;
 import stark.dataworks.boot.web.ServiceResponse;
 
@@ -25,30 +25,30 @@ public interface IRoleService
     /**
      * Get all role codes for the user within the target system.
      */
-    ServiceResponse<Set<String>> getUserRoles(@Valid @NotNull UserRolesQueryRequest request);
+    ServiceResponse<Set<String>> getUserRoles(@Valid @NotNull GetUserRolesRequest request);
 
     /**
      * Create a new role.
      */
-    ServiceResponse<RoleResponse> createRole(@Valid @NotNull RoleCreateRequest request);
+    ServiceResponse<RoleResponse> createRole(@Valid @NotNull CreateRoleRequest request);
 
     /**
      * Update basic role information.
      */
-    ServiceResponse<RoleResponse> updateRole(@Valid @NotNull RoleUpdateRequest request);
+    ServiceResponse<RoleResponse> updateRole(@Valid @NotNull UpdateRoleRequest request);
 
     /**
      * Delete one or more roles.
      */
-    ServiceResponse<Boolean> deleteRoles(@Valid @NotNull RoleDeleteRequest request);
+    ServiceResponse<Boolean> deleteRoles(@Valid @NotNull DeleteRolesRequest request);
 
     /**
      * Query roles by optional system code.
      */
-    ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull RoleQueryRequest request);
+    ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull ListRolesRequest request);
 
     /**
      * Set roles for a user in a system using an overwrite strategy.
      */
-    ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UserRoleUpdateRequest request);
+    ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UpdateUserRolesRequest request);
 }

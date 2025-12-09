@@ -43,10 +43,6 @@
         WHERE `id` = #{id}
     </update>
 
-    <delete id="deleteById">
-        DELETE FROM `role` WHERE `id` = #{id}
-    </delete>
-
     <delete id="deleteByIds">
         DELETE FROM `role` WHERE `id` IN
         <foreach item="id" collection="ids" open="(" separator="," close=")">

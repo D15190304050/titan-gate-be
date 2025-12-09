@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserRoleUpdateRequest
+public class UpdateUserRolesRequest
 {
     @Min(value = 1, message = "OperatorId must be positive.")
     private long operatorId;
@@ -19,6 +19,7 @@ public class UserRoleUpdateRequest
     @NotBlank(message = "SystemCode is required.")
     private String systemCode;
 
+    // TODO: We need to use role code instead of role id.
     @NotEmpty(message = "RoleIds cannot be empty.")
     private List<Long> roleIds;
 }

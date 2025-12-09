@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class RoleDeleteRequest
+public class DeleteRolesRequest
 {
     @Min(value = 1, message = "OperatorId must be positive.")
     private long operatorId;

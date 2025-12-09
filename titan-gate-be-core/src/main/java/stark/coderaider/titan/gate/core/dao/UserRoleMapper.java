@@ -10,10 +10,7 @@ import java.util.List;
 public interface UserRoleMapper
 {
     UserRole getByUserAndSystem(@Param("userId") long userId, @Param("systemCode") String systemCode);
-
     List<UserRole> listByUser(@Param("userId") long userId);
-
     int insert(UserRole userRole);
-
     int update(UserRole userRole);
 }

@@ -1,6 +1,8 @@
 package stark.coderaider.titan.gate.core.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -8,38 +10,37 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import stark.coderaider.titan.gate.api.IRoleService;
 import stark.coderaider.titan.gate.api.dtos.requests.HasRoleRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleCreateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleDeleteRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleQueryRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.RoleUpdateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.UserRoleUpdateRequest;
-import stark.coderaider.titan.gate.api.dtos.requests.UserRolesQueryRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.CreateRoleRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.DeleteRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.ListRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.UpdateRoleRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.UpdateUserRolesRequest;
+import stark.coderaider.titan.gate.api.dtos.requests.GetUserRolesRequest;
 import stark.coderaider.titan.gate.api.dtos.responses.RoleResponse;
 import stark.coderaider.titan.gate.core.dao.RoleMapper;
 import stark.coderaider.titan.gate.core.dao.UserRoleMapper;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.Role;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.UserRole;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
+import stark.dataworks.boot.autoconfig.web.LogArgumentsAndResponse;
 import stark.dataworks.boot.web.ServiceResponse;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @DubboService
 @Service
 @Validated
+@LogArgumentsAndResponse
 public class RoleService implements IRoleService
 {
     private static final String SUPER_ADMIN_CODE = "SUPER_ADMIN";
     private static final String SYSTEM_ADMIN_CODE = "SYSTEM_ADMIN";
-    private static final long USER_ROLE_CACHE_MINUTES = 30;
+    private static final long USER_ROLE_CACHE_MINUTES = 5;
 
     @Autowired
     private RoleMapper roleMapper;
@@ -53,30 +54,26 @@ public class RoleService implements IRoleService
     @Override
     public ServiceResponse<Boolean> hasRole(@Valid @NotNull HasRoleRequest request)
     {
-        Set<String> userRoles = getUserRolesFromDatabase(request.getUserId(), request.getSystemCode(), true);
+        Set<String> userRoles = getUserRoleCodes(request.getUserId(), request.getSystemCode());
         return ServiceResponse.buildSuccessResponse(userRoles.contains(request.getRoleCode()));
     }
 
     @Override
-    public ServiceResponse<Set<String>> getUserRoles(@Valid @NotNull UserRolesQueryRequest request)
+    public ServiceResponse<Set<String>> getUserRoles(@Valid @NotNull GetUserRolesRequest request)
     {
-        Set<String> roles = getUserRolesFromDatabase(request.getUserId(), request.getSystemCode(), true);
+        Set<String> roles = getUserRoleCodes(request.getUserId(), request.getSystemCode());
         return ServiceResponse.buildSuccessResponse(roles);
     }
 
     @Override
-    public ServiceResponse<RoleResponse> createRole(@Valid @NotNull RoleCreateRequest request)
+    public ServiceResponse<RoleResponse> createRole(@Valid @NotNull CreateRoleRequest request)
     {
         if (!isSuperAdmin(request.getOperatorId()) && !isSystemAdmin(request.getOperatorId(), request.getSystemCode()))
-        {
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can create roles.");
-        }
 
         Role existing = roleMapper.getByCode(request.getCode());
         if (existing != null)
-        {
             return ServiceResponse.buildErrorResponse(-1, "Role code already exists.");
-        }
 
         Role role = new Role();
         role.setCode(request.getCode());
@@ -91,27 +88,21 @@ public class RoleService implements IRoleService
     }
 
     @Override
-    public ServiceResponse<RoleResponse> updateRole(@Valid @NotNull RoleUpdateRequest request)
+    public ServiceResponse<RoleResponse> updateRole(@Valid @NotNull UpdateRoleRequest request)
     {
         Role role = roleMapper.getById(request.getId());
         if (role == null)
-        {
             return ServiceResponse.buildErrorResponse(-1, "Role does not exist.");
-        }
 
         if (!isSuperAdmin(request.getOperatorId()) && !isSystemAdmin(request.getOperatorId(), role.getSystemCode()))
-        {
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles.");
-        }
 
         if (StringUtils.hasText(request.getName()))
-        {
             role.setName(request.getName());
-        }
+
         if (request.getDescription() != null)
-        {
             role.setDescription(request.getDescription());
-        }
+
         role.setModifierId(request.getOperatorId());
         roleMapper.update(role);
 
@@ -119,123 +110,113 @@ public class RoleService implements IRoleService
     }
 
     @Override
-    public ServiceResponse<Boolean> deleteRoles(@Valid @NotNull RoleDeleteRequest request)
+    public ServiceResponse<Boolean> deleteRoles(@Valid @NotNull DeleteRolesRequest request)
     {
         Set<Long> roleIds = new HashSet<>(request.getRoleIds());
         if (roleIds.isEmpty())
-        {
             return ServiceResponse.buildErrorResponse(-1, "RoleIds cannot be empty.");
-        }
 
         List<Role> roles = roleMapper.getByIds(roleIds);
+
+        // Check if all roles exist.
         if (roles.size() != roleIds.size())
         {
-            return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist.");
+            HashSet<Long> invalidRoleIds = new HashSet<>(roleIds);
+            for (Role role : roles)
+                invalidRoleIds.remove(role.getId());
+
+            String invalidRoleIdsString = invalidRoleIds.stream().map(Object::toString).collect(Collectors.joining(", "));
+            return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist: " + invalidRoleIdsString + ".");
         }
 
         Set<String> systemsInScope = roles.stream().map(Role::getSystemCode).collect(Collectors.toSet());
         if (!isSuperAdmin(request.getOperatorId()) && !isAdminForSystems(request.getOperatorId(), systemsInScope))
-        {
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can delete roles.");
-        }
 
         roleMapper.deleteByIds(roleIds);
         return ServiceResponse.buildSuccessResponse(true);
     }
 
+    // TODO: According to this design, we should have limited roles for each system.
     @Override
-    public ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull RoleQueryRequest request)
+    public ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull ListRolesRequest request)
     {
         List<Role> roles;
         if (StringUtils.hasText(request.getSystemCode()))
-        {
             roles = roleMapper.listBySystem(request.getSystemCode());
-        }
         else
-        {
             roles = roleMapper.listAll();
-        }
-        List<RoleResponse> response = roles.stream().map(this::toResponse).collect(Collectors.toList());
+
+        List<RoleResponse> response = roles.stream().map(RoleService::toResponse).collect(Collectors.toList());
         return ServiceResponse.buildSuccessResponse(response);
     }
 
     @Override
-    public ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UserRoleUpdateRequest request)
+    public ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UpdateUserRolesRequest request)
     {
+        // TODO: We should allow empty roleIds.
+        // In this case, it means we remove all roles for the user.
         Set<Long> roleIdSet = new HashSet<>(request.getRoleIds());
         if (roleIdSet.isEmpty())
-        {
             return ServiceResponse.buildErrorResponse(-1, "RoleIds cannot be empty.");
-        }
 
         List<Role> roles = roleMapper.getByIds(roleIdSet);
         if (roles.size() != roleIdSet.size())
-        {
             return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist.");
-        }
 
         boolean allMatchSystem = roles.stream().allMatch(r -> request.getSystemCode().equals(r.getSystemCode()));
         if (!allMatchSystem)
-        {
             return ServiceResponse.buildErrorResponse(-1, "All roles must belong to the provided system.");
-        }
 
+        // TODO: We need to add validations for roles that can operate for users by themselves.
+        // TODO: Maybe we need a reason/description (optional) for updating roles for other users.
         if (request.getOperatorId() != request.getUserId())
         {
             boolean allowed = isSuperAdmin(request.getOperatorId()) || isSystemAdmin(request.getOperatorId(), request.getSystemCode());
             if (!allowed)
-            {
                 return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles for other users.");
-            }
         }
 
-        String roleIds = request.getRoleIds().stream().map(String::valueOf).collect(Collectors.joining(","));
-        UserRole existing = userRoleMapper.getByUserAndSystem(request.getUserId(), request.getSystemCode());
-        if (existing == null)
+        String roleIdsString = request.getRoleIds().stream().map(String::valueOf).collect(Collectors.joining(","));
+        UserRole existingUserRole = userRoleMapper.getByUserAndSystem(request.getUserId(), request.getSystemCode());
+        if (existingUserRole == null)
         {
-            existing = new UserRole();
-            existing.setCreatorId(request.getOperatorId());
-            existing.setModifierId(request.getOperatorId());
-            existing.setUserId(request.getUserId());
-            existing.setSystemCode(request.getSystemCode());
-            existing.setRoleIds(roleIds);
-            userRoleMapper.insert(existing);
+            UserRole newUserRole = new UserRole();
+            newUserRole.setCreatorId(request.getOperatorId());
+            newUserRole.setModifierId(request.getOperatorId());
+            newUserRole.setUserId(request.getUserId());
+            newUserRole.setSystemCode(request.getSystemCode());
+            newUserRole.setRoleIds(roleIdsString);
+            userRoleMapper.insert(newUserRole);
         }
         else
         {
-            existing.setRoleIds(roleIds);
-            existing.setModifierId(request.getOperatorId());
-            existing.setSystemCode(request.getSystemCode());
-            userRoleMapper.update(existing);
+            existingUserRole.setRoleIds(roleIdsString);
+            existingUserRole.setModifierId(request.getOperatorId());
+            existingUserRole.setSystemCode(request.getSystemCode());
+            userRoleMapper.update(existingUserRole);
         }
 
-        titanGateRedisOperation.removeCachedUserRoles(request.getUserId(), request.getSystemCode());
+        // TODO: Refresh the user roles cache here.
+//        titanGateRedisOperation.cacheUserRoles(request.getUserId(), request.getSystemCode(), roleIds, USER_ROLE_CACHE_MINUTES);
         return ServiceResponse.buildSuccessResponse(true);
     }
 
-    private RoleResponse toResponse(Role role)
+    private static RoleResponse toResponse(Role role)
     {
         RoleResponse response = new RoleResponse();
-        response.setId(role.getId());
-        response.setCode(role.getCode());
-        response.setName(role.getName());
-        response.setDescription(role.getDescription());
-        response.setSystemCode(role.getSystemCode());
+        BeanUtils.copyProperties(role, response);
         return response;
     }
 
-    private Set<String> getUserRolesFromDatabase(long userId, String systemCode, boolean useCache)
+    private Set<String> getUserRoleCodes(long userId, String systemCode)
     {
         if (!StringUtils.hasText(systemCode))
-        {
             return getAllRoleCodes(userId);
-        }
 
-        Set<String> cached = useCache ? titanGateRedisOperation.getCachedUserRoles(userId, systemCode) : null;
-        if (cached != null)
-        {
-            return cached;
-        }
+        Set<String> cachedRoles = titanGateRedisOperation.getCachedUserRoles(userId, systemCode);
+        if (cachedRoles != null)
+            return cachedRoles;
 
         UserRole userRole = userRoleMapper.getByUserAndSystem(userId, systemCode);
         if (userRole == null || !StringUtils.hasText(userRole.getRoleIds()))
@@ -255,57 +236,37 @@ public class RoleService implements IRoleService
     {
         List<UserRole> userRoles = userRoleMapper.listByUser(userId);
         if (CollectionUtils.isEmpty(userRoles))
-        {
             return Collections.emptySet();
-        }
 
         Set<Long> roleIds = new HashSet<>();
-        Map<String, Set<Long>> roleIdsBySystem = new HashMap<>();
         for (UserRole userRole : userRoles)
         {
             Set<Long> parsedIds = parseRoleIds(userRole.getRoleIds());
             roleIds.addAll(parsedIds);
-            roleIdsBySystem.computeIfAbsent(userRole.getSystemCode(), key -> new HashSet<>()).addAll(parsedIds);
         }
 
         if (roleIds.isEmpty())
-        {
             return Collections.emptySet();
-        }
 
         List<Role> roles = roleMapper.getByIds(roleIds);
         Map<Long, Role> roleMap = roles.stream().collect(Collectors.toMap(Role::getId, r -> r));
-        Set<String> codes = new HashSet<>();
-        for (UserRole userRole : userRoles)
-        {
-            Set<Long> parsedIds = roleIdsBySystem.getOrDefault(userRole.getSystemCode(), Collections.emptySet());
-            for (Long id : parsedIds)
-            {
-                Role role = roleMap.get(id);
-                if (role != null)
-                {
-                    codes.add(role.getCode());
-                }
-            }
-        }
-        return codes;
+
+        return roleIds.stream().map(roleMap::get).filter(Objects::nonNull).map(Role::getCode).collect(Collectors.toSet());
     }
 
     private Set<Long> parseRoleIds(String roleIds)
     {
         if (!StringUtils.hasText(roleIds))
-        {
             return Collections.emptySet();
-        }
+
         String[] segments = roleIds.split(",");
         Set<Long> ids = new HashSet<>();
         for (String segment : segments)
         {
             if (StringUtils.hasText(segment))
-            {
                 ids.add(Long.parseLong(segment));
-            }
         }
+
         return ids;
     }
 
@@ -317,25 +278,22 @@ public class RoleService implements IRoleService
     private boolean isSystemAdmin(long userId, String systemCode)
     {
         if (!StringUtils.hasText(systemCode))
-        {
             return false;
-        }
-        return getUserRolesFromDatabase(userId, systemCode, true).contains(SYSTEM_ADMIN_CODE);
+
+        return getUserRoleCodes(userId, systemCode).contains(SYSTEM_ADMIN_CODE);
     }
 
     private boolean isAdminForSystems(long userId, Set<String> systemCodes)
     {
         if (CollectionUtils.isEmpty(systemCodes))
-        {
             return false;
-        }
+
         for (String systemCode : systemCodes)
         {
             if (!isSystemAdmin(userId, systemCode))
-            {
                 return false;
-            }
         }
+
         return true;
     }
 }
