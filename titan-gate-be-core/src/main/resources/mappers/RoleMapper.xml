@@ -14,19 +14,27 @@
     </resultMap>
 
     <select id="getById" resultMap="BaseResultMap">
-        SELECT * FROM `role` WHERE `id` = #{id}
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role` WHERE `id` = #{id}
     </select>
 
     <select id="getByCode" resultMap="BaseResultMap">
-        SELECT * FROM `role` WHERE `code` = #{code}
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role` WHERE `code` = #{code}
     </select>
 
     <select id="listBySystem" resultMap="BaseResultMap">
-        SELECT * FROM `role` WHERE `system_code` = #{systemCode}
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role` WHERE `system_code` = #{systemCode}
     </select>
 
     <select id="listAll" resultMap="BaseResultMap">
-        SELECT * FROM `role`
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role`
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -51,7 +59,9 @@
     </delete>
 
     <select id="getByIds" resultMap="BaseResultMap">
-        SELECT * FROM `role` WHERE `id` IN
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role` WHERE `id` IN
         <foreach item="id" collection="ids" open="(" separator="," close=")">
             #{id}
         </foreach>

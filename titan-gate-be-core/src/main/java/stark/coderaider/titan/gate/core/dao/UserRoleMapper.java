@@ -13,4 +13,5 @@ public interface UserRoleMapper
     List<UserRole> listByUser(@Param("userId") long userId);
     int insert(UserRole userRole);
     int update(UserRole userRole);
+    int deleteByUserAndSystem(@Param("userId") long userId, @Param("systemCode") String systemCode);
 }

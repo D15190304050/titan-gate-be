@@ -154,22 +154,7 @@ public class RoleService implements IRoleService
     @Override
     public ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UpdateUserRolesRequest request)
     {
-        // TODO: We should allow empty roleIds.
-        // In this case, it means we remove all roles for the user.
-        Set<Long> roleIdSet = new HashSet<>(request.getRoleIds());
-        if (roleIdSet.isEmpty())
-            return ServiceResponse.buildErrorResponse(-1, "RoleIds cannot be empty.");
-
-        List<Role> roles = roleMapper.getByIds(roleIdSet);
-        if (roles.size() != roleIdSet.size())
-            return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist.");
-
-        boolean allMatchSystem = roles.stream().allMatch(r -> request.getSystemCode().equals(r.getSystemCode()));
-        if (!allMatchSystem)
-            return ServiceResponse.buildErrorResponse(-1, "All roles must belong to the provided system.");
-
-        // TODO: We need to add validations for roles that can operate for users by themselves.
-        // TODO: Maybe we need a reason/description (optional) for updating roles for other users.
+        // Validate whether the operator can update other users' roles.
         if (request.getOperatorId() != request.getUserId())
         {
             boolean allowed = isSuperAdmin(request.getOperatorId()) || isSystemAdmin(request.getOperatorId(), request.getSystemCode());
@@ -177,7 +162,29 @@ public class RoleService implements IRoleService
                 return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles for other users.");
         }
 
-        String roleIdsString = request.getRoleIds().stream().map(String::valueOf).collect(Collectors.joining(","));
+        Set<Long> roleIdSet = new HashSet<>(request.getRoleIds());
+
+        // Allow clearing all roles under the system.
+        if (roleIdSet.isEmpty())
+        {
+            userRoleMapper.deleteByUserAndSystem(request.getUserId(), request.getSystemCode());
+            titanGateRedisOperation.cacheUserRoles(request.getUserId(), request.getSystemCode(), Collections.emptySet(), USER_ROLE_CACHE_MINUTES);
+
+            return ServiceResponse.buildSuccessResponse(true);
+        }
+
+        List<Role> roles = roleMapper.getByIds(roleIdSet);
+        if (roles.size() != roleIdSet.size())
+            return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist.");
+
+        // Validate that all roles belong to the target system.
+        boolean allMatchSystem = roles.stream().allMatch(r -> request.getSystemCode().equals(r.getSystemCode()));
+        if (!allMatchSystem)
+            return ServiceResponse.buildErrorResponse(-1, "All roles must belong to the provided system.");
+
+        // Persist the role assignments for the user.
+        Set<String> roleCodes = roles.stream().map(Role::getCode).collect(Collectors.toSet());
+        String roleIdsString = roleIdSet.stream().map(String::valueOf).collect(Collectors.joining(","));
         UserRole existingUserRole = userRoleMapper.getByUserAndSystem(request.getUserId(), request.getSystemCode());
         if (existingUserRole == null)
         {
@@ -197,8 +204,8 @@ public class RoleService implements IRoleService
             userRoleMapper.update(existingUserRole);
         }
 
-        // TODO: Refresh the user roles cache here.
-//        titanGateRedisOperation.cacheUserRoles(request.getUserId(), request.getSystemCode(), roleIds, USER_ROLE_CACHE_MINUTES);
+        // Refresh the cache so future reads return the latest roles.
+        titanGateRedisOperation.cacheUserRoles(request.getUserId(), request.getSystemCode(), roleCodes, USER_ROLE_CACHE_MINUTES);
         return ServiceResponse.buildSuccessResponse(true);
     }
 
