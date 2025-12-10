@@ -2,6 +2,7 @@ package stark.coderaider.titan.gate.core.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,11 +38,12 @@ public class DaoUserDetailService implements UserDetailsService, UserDetailsPass
             if (user == null)
                 throw new UsernameNotFoundException("User not found with username: " + username);
 
+            // Copy the basic user info into the security object.
             UserDetailsImpl userDetails = new UserDetailsImpl();
-            userDetails.setUsername(user.getUsername());
+            BeanUtils.copyProperties(user, userDetails, "password", "authorities", "nickname", "avatarUrl", "gender", "encryptedPassword");
+
+            // Fill in credentials that require manual mapping.
             userDetails.setPassword(user.getEncryptedPassword());
-            userDetails.setId(user.getId());
-            userDetails.setEmail(user.getEmail());
 
             // TODO: Call RPC interface to get nickname, avatar url, gender.
 //        userInfo.setNickname(user.getNickname());

@@ -13,11 +13,15 @@
     </resultMap>
 
     <select id="getByUserAndSystem" resultMap="BaseResultMap">
-        SELECT * FROM `user_role` WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `user_id`, `system_code`, `role_ids`
+        FROM `user_role` WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
     </select>
 
     <select id="listByUser" resultMap="BaseResultMap">
-        SELECT * FROM `user_role` WHERE `user_id` = #{userId}
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `user_id`, `system_code`, `role_ids`
+        FROM `user_role` WHERE `user_id` = #{userId}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -31,4 +35,8 @@
             `modifier_id` = #{modifierId}
         WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
     </update>
+
+    <delete id="deleteByUserAndSystem">
+        DELETE FROM `user_role` WHERE `user_id` = #{userId} AND `system_code` = #{systemCode}
+    </delete>
 </mapper>
