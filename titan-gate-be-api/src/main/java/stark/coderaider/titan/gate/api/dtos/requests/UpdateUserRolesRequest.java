@@ -19,7 +19,6 @@ public class UpdateUserRolesRequest
     @NotBlank(message = "SystemCode is required.")
     private String systemCode;
 
-    // TODO: We need to use role code instead of role id.
-    @NotEmpty(message = "RoleIds cannot be empty.")
-    private List<Long> roleIds;
+    @NotEmpty(message = "RoleCodes cannot be empty.")
+    private List<String> roleCodes;
 }

@@ -25,6 +25,15 @@
         FROM `role` WHERE `code` = #{code}
     </select>
 
+    <select id="getByCodes" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`, `system_code`
+        FROM `role` WHERE `code` IN
+        <foreach item="code" collection="codes" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
     <select id="listBySystem" resultMap="BaseResultMap">
         SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
                `code`, `name`, `description`, `system_code`

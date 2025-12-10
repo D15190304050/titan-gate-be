@@ -137,7 +137,7 @@ public class RoleService implements IRoleService
         return ServiceResponse.buildSuccessResponse(true);
     }
 
-    // TODO: According to this design, we should have limited roles for each system.
+    // According to this design, we should have limited roles for each system.
     @Override
     public ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull ListRolesRequest request)
     {
@@ -162,10 +162,10 @@ public class RoleService implements IRoleService
                 return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles for other users.");
         }
 
-        Set<Long> roleIdSet = new HashSet<>(request.getRoleIds());
+        Set<String> roleCodes = new HashSet<>(request.getRoleCodes());
 
         // Allow clearing all roles under the system.
-        if (roleIdSet.isEmpty())
+        if (roleCodes.isEmpty())
         {
             userRoleMapper.deleteByUserAndSystem(request.getUserId(), request.getSystemCode());
             titanGateRedisOperation.cacheUserRoles(request.getUserId(), request.getSystemCode(), Collections.emptySet(), USER_ROLE_CACHE_MINUTES);
@@ -173,8 +173,8 @@ public class RoleService implements IRoleService
             return ServiceResponse.buildSuccessResponse(true);
         }
 
-        List<Role> roles = roleMapper.getByIds(roleIdSet);
-        if (roles.size() != roleIdSet.size())
+        List<Role> roles = roleMapper.getByCodes(roleCodes);
+        if (roles.size() != roleCodes.size())
             return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist.");
 
         // Validate that all roles belong to the target system.
@@ -183,8 +183,8 @@ public class RoleService implements IRoleService
             return ServiceResponse.buildErrorResponse(-1, "All roles must belong to the provided system.");
 
         // Persist the role assignments for the user.
-        Set<String> roleCodes = roles.stream().map(Role::getCode).collect(Collectors.toSet());
-        String roleIdsString = roleIdSet.stream().map(String::valueOf).collect(Collectors.joining(","));
+        Set<Long> roleIds = roles.stream().map(Role::getId).collect(Collectors.toSet());
+        String roleIdsString = roleIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         UserRole existingUserRole = userRoleMapper.getByUserAndSystem(request.getUserId(), request.getSystemCode());
         if (existingUserRole == null)
         {

@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.Role;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ public interface RoleMapper
 {
     Role getById(@Param("id") long id);
     Role getByCode(@Param("code") String code);
+    List<Role> getByCodes(@Param("codes") Collection<String> codes);
     List<Role> listBySystem(@Param("systemCode") String systemCode);
     List<Role> listAll();
     int insert(Role role);

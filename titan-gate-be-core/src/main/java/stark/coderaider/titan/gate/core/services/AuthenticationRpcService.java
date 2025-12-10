@@ -100,11 +100,8 @@ public class AuthenticationRpcService implements IAuthenticationRpcService
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = new User();
-        user.setUsername(request.getUsername());
+        BeanUtils.copyProperties(request, user);
         user.setEncryptedPassword(encodedPassword);
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setPhoneNumberCountryCode(request.getPhoneNumberCountryCode());
         user.setState(0);
         return user;
     }
