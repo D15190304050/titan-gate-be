@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import stark.coderaider.fluentschema.commons.EntityBase;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.annotations.Column;
-import stark.coderaider.fluentschema.commons.annotations.Key;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
 @Data
@@ -13,11 +12,9 @@ import stark.coderaider.fluentschema.commons.annotations.Table;
 @Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE, comment = "Business system.")
 public class BusinessSystem extends EntityBase
 {
-    @Key(name = "idx_name")
-    @Column(type = "VARCHAR(100)", nullable = false, comment = "Name of the business system.")
+    @Column(type = "VARCHAR(100)", nullable = false, unique = true, comment = "Name of the business system.")
     private String name;
 
-    @Key(name = "idx_code")
     @Column(type = "VARCHAR(100)", nullable = false, unique = true, comment = "Code of the business system.")
     private String code;
 

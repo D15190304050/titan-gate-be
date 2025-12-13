@@ -11,4 +11,77 @@
         <result column="name" property="name"/>
         <result column="description" property="description"/>
     </resultMap>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`
+        FROM `business_system` WHERE `id` = #{id}
+    </select>
+
+    <select id="existsByCodeOrName" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM `business_system`
+            WHERE `code` = #{code}
+            OR `name` = #{name}
+        )
+    </select>
+
+    <select id="getByCode" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`
+        FROM `business_system` WHERE `code` = #{code}
+    </select>
+
+    <select id="getByCodes" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`
+        FROM `business_system` WHERE `code` IN
+        <foreach item="code" collection="codes" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <select id="getBusinessSystems" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`
+        FROM `business_system`
+        WHERE `code` LIKE CONCAT('%', #{code}, '%')
+        OR `name` LIKE CONCAT('%', #{name}, '%')
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+        <if test="offset != null and offset >= 0">
+            OFFSET #{offset}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `business_system` (`creator_id`, `modifier_id`, `code`, `name`, `description`)
+        VALUES (#{creatorId}, #{modifierId}, #{code}, #{name}, #{description})
+    </insert>
+
+    <update id="updateById">
+        UPDATE `business_system`
+        SET `name` = #{name},
+            `description` = #{description},
+            `modifier_id` = #{modifierId}
+        WHERE `id` = #{id}
+    </update>
+
+    <delete id="deleteByIds">
+        DELETE FROM `business_system` WHERE `id` IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        SELECT `id`, `creator_id`, `creation_time`, `modifier_id`, `modification_time`,
+               `code`, `name`, `description`
+        FROM `business_system` WHERE `id` IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
