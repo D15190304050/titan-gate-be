@@ -36,3 +36,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/.idea/.gitignore
+/.idea/dataSources.xml
+/.idea/encodings.xml
+/.idea/MarsCodeWorkspaceAppSettings.xml
+/.idea/misc.xml
+/.idea/sqldialects.xml
+/.idea/vcs.xml
