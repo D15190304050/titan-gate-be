@@ -10,9 +10,6 @@ import java.util.List;
 @Data
 public class DeleteBusinessSystemsRequest
 {
-    @Min(value = 1, message = "UserId must be positive.")
-    private long userId;
-
     @NotEmpty(message = "SystemIds cannot be empty.")
     private List<@NotNull(message = "SystemId cannot be null.") Long> systemIds;
 }

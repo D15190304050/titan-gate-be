@@ -1,7 +1,6 @@
 package stark.coderaider.titan.gate.core.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@DubboService
 @Service
 @Validated
 @LogArgumentsAndResponse
@@ -70,7 +68,7 @@ public class BusinessSystemService
         if (request.getDescription() != null)
             businessSystem.setDescription(request.getDescription());
 
-        businessSystem.setModifierId(request.getUserId());
+        businessSystem.setModifierId(UserContextService.getCurrentUserId());
         businessSystemMapper.updateById(businessSystem);
 
         return ServiceResponse.buildSuccessResponse(toResponse(businessSystem));

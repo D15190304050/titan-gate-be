@@ -10,9 +10,6 @@ import java.util.List;
 @Data
 public class UpdateUserRolesRequest
 {
-    @Min(value = 1, message = "OperatorId must be positive.")
-    private long operatorId;
-
     @Min(value = 1, message = "UserId must be positive.")
     private long userId;
 

@@ -28,27 +28,7 @@ public interface IRoleService
     ServiceResponse<Set<String>> getUserRoles(@Valid @NotNull GetUserRolesRequest request);
 
     /**
-     * Create a new role.
-     */
-    ServiceResponse<RoleResponse> createRole(@Valid @NotNull CreateRoleRequest request);
-
-    /**
-     * Update basic role information.
-     */
-    ServiceResponse<RoleResponse> updateRole(@Valid @NotNull UpdateRoleRequest request);
-
-    /**
-     * Delete one or more roles.
-     */
-    ServiceResponse<Boolean> deleteRoles(@Valid @NotNull DeleteRolesRequest request);
-
-    /**
      * Query roles by optional system code.
      */
     ServiceResponse<List<RoleResponse>> listRoles(@Valid @NotNull ListRolesRequest request);
-
-    /**
-     * Set roles for a user in a system using an overwrite strategy.
-     */
-    ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UpdateUserRolesRequest request);
 }

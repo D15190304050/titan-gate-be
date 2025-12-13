@@ -22,6 +22,7 @@ import stark.coderaider.titan.gate.core.dao.UserRoleMapper;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.Role;
 import stark.coderaider.titan.gate.core.domain.entities.mysql.UserRole;
 import stark.coderaider.titan.gate.core.redis.TitanGateRedisOperation;
+import stark.coderaider.titan.gate.loginstate.UserContextService;
 import stark.dataworks.boot.autoconfig.web.LogArgumentsAndResponse;
 import stark.dataworks.boot.web.ServiceResponse;
 
@@ -65,10 +66,11 @@ public class RoleService implements IRoleService
         return ServiceResponse.buildSuccessResponse(roles);
     }
 
-    @Override
     public ServiceResponse<RoleResponse> createRole(@Valid @NotNull CreateRoleRequest request)
     {
-        if (!isSuperAdmin(request.getOperatorId()) && !isSystemAdmin(request.getOperatorId(), request.getSystemCode()))
+        long currentUserId = UserContextService.getCurrentUserId();
+
+        if (!isSuperAdmin(currentUserId) && !isSystemAdmin(currentUserId, request.getSystemCode()))
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can create roles.");
 
         Role existing = roleMapper.getByCode(request.getCode());
@@ -80,21 +82,22 @@ public class RoleService implements IRoleService
         role.setName(request.getName());
         role.setDescription(request.getDescription());
         role.setSystemCode(request.getSystemCode());
-        role.setCreatorId(request.getOperatorId());
-        role.setModifierId(request.getOperatorId());
+        role.setCreatorId(currentUserId);
+        role.setModifierId(currentUserId);
         roleMapper.insert(role);
 
         return ServiceResponse.buildSuccessResponse(toResponse(role));
     }
 
-    @Override
     public ServiceResponse<RoleResponse> updateRole(@Valid @NotNull UpdateRoleRequest request)
     {
         Role role = roleMapper.getById(request.getId());
         if (role == null)
             return ServiceResponse.buildErrorResponse(-1, "Role does not exist.");
 
-        if (!isSuperAdmin(request.getOperatorId()) && !isSystemAdmin(request.getOperatorId(), role.getSystemCode()))
+        long currentUserId = UserContextService.getCurrentUserId();
+
+        if (!isSuperAdmin(currentUserId) && !isSystemAdmin(currentUserId, role.getSystemCode()))
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles.");
 
         if (StringUtils.hasText(request.getName()))
@@ -103,13 +106,12 @@ public class RoleService implements IRoleService
         if (request.getDescription() != null)
             role.setDescription(request.getDescription());
 
-        role.setModifierId(request.getOperatorId());
+        role.setModifierId(currentUserId);
         roleMapper.update(role);
 
         return ServiceResponse.buildSuccessResponse(toResponse(role));
     }
 
-    @Override
     public ServiceResponse<Boolean> deleteRoles(@Valid @NotNull DeleteRolesRequest request)
     {
         Set<Long> roleIds = new HashSet<>(request.getRoleIds());
@@ -129,8 +131,9 @@ public class RoleService implements IRoleService
             return ServiceResponse.buildErrorResponse(-1, "Some roles do not exist: " + invalidRoleIdsString + ".");
         }
 
+        long currentUserId = UserContextService.getCurrentUserId();
         Set<String> systemsInScope = roles.stream().map(Role::getSystemCode).collect(Collectors.toSet());
-        if (!isSuperAdmin(request.getOperatorId()) && !isAdminForSystems(request.getOperatorId(), systemsInScope))
+        if (!isSuperAdmin(currentUserId) && !isAdminForSystems(currentUserId, systemsInScope))
             return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can delete roles.");
 
         roleMapper.deleteByIds(roleIds);
@@ -151,13 +154,14 @@ public class RoleService implements IRoleService
         return ServiceResponse.buildSuccessResponse(response);
     }
 
-    @Override
     public ServiceResponse<Boolean> updateUserRoles(@Valid @NotNull UpdateUserRolesRequest request)
     {
+        long operatorId = UserContextService.getCurrentUserId();
+
         // Validate whether the operator can update other users' roles.
-        if (request.getOperatorId() != request.getUserId())
+        if (operatorId != request.getUserId())
         {
-            boolean allowed = isSuperAdmin(request.getOperatorId()) || isSystemAdmin(request.getOperatorId(), request.getSystemCode());
+            boolean allowed = isSuperAdmin(operatorId) || isSystemAdmin(operatorId, request.getSystemCode());
             if (!allowed)
                 return ServiceResponse.buildErrorResponse(-1, "Only super admin or system admin can update roles for other users.");
         }
@@ -189,8 +193,8 @@ public class RoleService implements IRoleService
         if (existingUserRole == null)
         {
             UserRole newUserRole = new UserRole();
-            newUserRole.setCreatorId(request.getOperatorId());
-            newUserRole.setModifierId(request.getOperatorId());
+            newUserRole.setCreatorId(operatorId);
+            newUserRole.setModifierId(operatorId);
             newUserRole.setUserId(request.getUserId());
             newUserRole.setSystemCode(request.getSystemCode());
             newUserRole.setRoleIds(roleIdsString);
@@ -199,7 +203,7 @@ public class RoleService implements IRoleService
         else
         {
             existingUserRole.setRoleIds(roleIdsString);
-            existingUserRole.setModifierId(request.getOperatorId());
+            existingUserRole.setModifierId(operatorId);
             existingUserRole.setSystemCode(request.getSystemCode());
             userRoleMapper.update(existingUserRole);
         }
