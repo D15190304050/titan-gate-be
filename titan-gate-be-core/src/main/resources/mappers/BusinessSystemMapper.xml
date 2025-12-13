@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stark.coderaider.titan.gate.core.dao.BusinessSystemMapper">
+    <resultMap id="BaseResultMap" type="stark.coderaider.titan.gate.core.domain.entities.mysql.BusinessSystem">
+        <id column="id" property="id"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="creation_time" property="creationTime"/>
+        <result column="modifier_id" property="modifierId"/>
+        <result column="modification_time" property="modificationTime"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+    </resultMap>
+</mapper>

@@ -22,7 +22,7 @@ public class SecurityConstants
     public static final String DEFAULT_LOGOUT_URI = "/logout";
 
     public static final String SSO_COOKIE_NAME = "titan_gate_login";
-    public static final String REDIRECT_URL = "redirect_url";
+    public static final String REDIRECT_URL = "redirectUrl";
 
     public static final List<String> NON_AUTHENTICATION_URIS = List.of(
         DEFAULT_LOGIN_URI,

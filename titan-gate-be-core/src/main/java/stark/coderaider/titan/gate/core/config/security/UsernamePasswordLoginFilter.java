@@ -37,12 +37,14 @@ public class UsernamePasswordLoginFilter extends UsernamePasswordAuthenticationF
             try
             {
                 LoginRequest loginRequest = JsonSerializer.deserialize(request.getInputStream(), LoginRequest.class);
+                String redirectUrl = loginRequest.getRedirectUrl();
+                // TODO: Validate if redirectUrl is a valid URL to prevent redirect attacks.
+
                 String username = loginRequest.getUsername();
                 String password = loginRequest.getPassword();
                 UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(username, password);
                 setDetails(request, authenticationRequest);
 
-                String redirectUrl = loginRequest.getRedirectUrl();
                 if (StringUtils.hasText(redirectUrl))
                     request.setAttribute(SecurityConstants.REDIRECT_URL, redirectUrl);
 

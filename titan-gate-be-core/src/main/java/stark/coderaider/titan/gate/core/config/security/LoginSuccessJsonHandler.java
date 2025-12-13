@@ -66,7 +66,7 @@ public class LoginSuccessJsonHandler implements AuthenticationSuccessHandler
         LoginResponse loginStateToken = new LoginResponse();
         loginStateToken.setAccessToken(token);
 
-        // TODO: Add refresh token & expiration time.
+        // TODO: Add refresh token.
 
         return loginStateToken;
     }
